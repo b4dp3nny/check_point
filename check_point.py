@@ -12,6 +12,13 @@ class Check_Point(object):
       self.url_base = "https://{h}:{p}/web_api".format(h=self.host,p=self.port)
       self.login()
 
+   def api_call(self,command,payload):
+      url = "{u}/{c}".format(u=self.url_base,c=command)
+      headers = { 'Content-Type':'application/json','X-chkp-sid':self.sid }
+      req = requests.post(url,json.dumps(payload),headers=headers,verify=False)
+      req = req.json()
+      return req
+
    def login(self):
       payload = { 'user':self.username,'password':self.password }
       url = "{u}/login".format(u=self.url_base)
@@ -20,9 +27,6 @@ class Check_Point(object):
       req = req.json()
       self.sid = req["sid"]
 
-   def api_call(self,command,payload):
-      url = "{u}/{c}".format(u=self.url_base,c=command)
-      headers = { 'Content-Type':'application/json','X-chkp-sid':self.sid }
-      req = requests.post(url,json.dumps(payload),headers=headers,verify=False)
-      req = req.json()
-      return req
+   def logout(self):
+      req = self.api_call('logout',{})
+      print("Logout:{m}".format(m=req["message"]))
