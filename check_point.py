@@ -18,4 +18,11 @@ class Check_Point(object):
       headers = { 'Content-Type':'application/json' }
       req = requests.post(url,json.dumps(payload),headers=headers,verify=False)
       req = req.json()
-      print(req["sid"])
+      self.sid = req["sid"]
+
+   def api_call(self,command,payload):
+      url = "{u}/{c}".format(u=self.url_base,c=command)
+      headers = { 'Content-Type':'application/json','X-chkp-sid':self.sid }
+      req = requests.post(url,json.dumps(payload),headers=headers,verify=False)
+      req = req.json()
+      return req
