@@ -11,20 +11,21 @@ class Check_Point(object):
       self.password = password
       self.url_base = "https://{h}:{p}/web_api".format(h=self.host,p=self.port)
       self.login()
-
+   #Main Check Point interaction function.
    def api_call(self,command,payload={}):
       url = "{u}/{c}".format(u=self.url_base,c=command)
       headers = { 'Content-Type':'application/json','X-chkp-sid':self.sid }
       req = requests.post(url,json.dumps(payload),headers=headers,verify=False)
       req = req.json()
       return req
-
+   #Session management.
    def login(self):
       payload = { 'user':self.username,'password':self.password }
       url = "{u}/login".format(u=self.url_base)
       headers = { 'Content-Type':'application/json' }
       req = requests.post(url,json.dumps(payload),headers=headers,verify=False)
       req = req.json()
+      #Create sid variable to be used in all authenticated interactions.s
       self.sid = req["sid"]
 
    def show_session(self):
@@ -58,3 +59,15 @@ class Check_Point(object):
       req = self.api_call('logout')
       req_message = "Logout:{m}".format(m=req["message"])
       return req_message
+
+   #Firewall Policy
+   def list_policies_packages(self):
+      payload = { 'details-level':'full' }
+      packages = self.api_call('show-packages',payload)
+      self.package_policy = {}
+      for p in packages["packages"]:
+         key = p["name"]
+         for a in p["access-layers"]:
+            value = a["name"]
+            self.package_policy[key] = value
+      return self.package_policy
