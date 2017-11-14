@@ -71,3 +71,17 @@ class Check_Point(object):
             value = a["name"]
             self.package_policy[key] = value
       return self.package_policy
+
+   def get_policy_name(self):
+      policies = self.list_policies_packages()
+      for policy in policies.values():
+         policy_name = policy
+         break
+      return policy_name
+
+   def show_rulebase(self, policy_name = ''):
+      #if no policy name given get first available policy name.
+      if policy_name == '':
+         policy_name = self.get_policy_name()
+      access_rulebase = self.api_call('show-access-rulebase',{'name':policy_name})
+      return access_rulebase
